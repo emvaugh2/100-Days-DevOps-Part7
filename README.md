@@ -3,14 +3,72 @@
 We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end off running some basic Jenkins labs. Lets get it started. 
 
 ## Day 70: Configure Jenkins User Access
+
+
+
 ## Day 69: Install Jenkins Plugins
+
+
+
 ## Day 68: Set Up Jenkins Server
+
+
+
 ## Day 67: Deploy Guest Book App on Kubernetes
+
+
+
 ## Day 66: Deploy MySQL on Kubernetes
+
+
+
 ## Day 65: Deploy Redis Deployment on Kubernetes
+
+
+
 ## Day 64: Fix Python App Deployed on Kubernetes Cluster
+
+
+
 ## Day 63: Deploy Iron Gallery App on Kubernetes
+
+
+
 ## Day 62: Manage Secrets in Kubernetes
+
+I'm completely new to Kubernetes secrets so I'm going to lean on AI for this lab. I'm also very sleepy so this will be my last lab for the day. 
+
+We need to create a generic secret named blog and we have the password in a file called blog.txt. We need to create a Pod for this as well. We need to use the sleep command for the container as well. I believe I can do all of this myself besides the secret part. 
+
+Lets create the secret. We'll use the command `kubectl create secret generic blog \  --from-file=/opt/blog.txt` to do so. I used the `kubectl get secret` command to get the name of the secret. Now, lets create the Pod manifest using the details in the lab and the secret we just created. 
+
+```
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: secret-nautilus
+
+spec:
+  containers:
+    - name: secret-container-nautilus
+      image: fedora:latest
+
+      command:
+        - /bin/bash
+        - -c
+        - sleep infinity
+
+      volumeMounts:
+        - name: blog-secret-volume
+          mountPath: /opt/demo
+          readOnly: true
+
+  volumes:
+    - name: blog-secret-volume
+      secret:
+        secretName: blog
+```
 
 
 
