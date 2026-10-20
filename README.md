@@ -32,7 +32,123 @@ We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end o
 
 ## Day 63: Deploy Iron Gallery App on Kubernetes
 
+We need to create an app named Iron Gallary on K8s. It needs it's own namespace and deployment. It'll actually be two deployments so lets just get that started. We'll use one of our previous deployment manifests. Use the command `kubectl create namespace <name>` for the namespace as well. 
 
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iron-gallery-deployment-xfusion
+  namespace: iron-namespace-xfusion
+  labels:
+    run: iron-gallery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: iron-gallery
+  template:
+    metadata:
+      labels:
+        run: iron-gallery
+    spec:
+      containers:
+        - name: iron-gallery-container-xfusion
+          image: kodekloud/irongallery:2.0
+          resources:
+            limits:
+              memory: "100Mi"
+              cpu: "50m"
+          volumeMounts:
+            - name: config
+              mountPath: /usr/share/nginx/html/data
+
+            - name: images
+              mountPath: /usr/share/nginx/html/uploads
+            
+      volumes:
+        - name: config
+          emptyDir: {}
+
+        - name: images
+          emptyDir: {}
+
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iron-db-deployment-xfusion
+  namespace: iron-namespace-xfusion
+  labels:
+    db: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      db: mariadb
+  template:
+    metadata:
+      labels:
+        db: mariadb
+    spec:
+      containers:
+        - name: iron-db-container-xfusion
+          image: kodekloud/irondb:2.0
+          env:
+            - name: MYSQL_DATABASE
+              value: "database_host"
+            -  name: MYSQL_ROOT_PASSWORD
+              value: "letsgeteverythingwedeserve5678"
+            - name: MYSQL_PASSWORD
+              value: "ILoveGodDoYouLoveGod?9876"
+            -  name: MYSQL_USER
+              value: "edward_1234"
+          volumeMounts:
+            - name: db
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: db
+          emptyDir: {}
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: iron-db-service-xfusion
+  namespace: iron-namespace-xfusion
+spec:
+  selector:
+    db: mariadb
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: iron-gallery-service-xfusion
+  namespace: iron-namespace-xfusion
+spec:
+  type: NodePort
+  selector:
+    run: iron-gallery
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 32678
+```
+
+Okay apparently I needed to fix three things. Everywhere in my gallery deployment output, I need to change the `app:` text to `run:`. I next needed to change my volumes section. Both sections need to be condensed into one section and not two parts. Lastly, I had the same issue with the DB manifest files. I had to switch `app:` to `db:`. I really need to spend a few days just writing out these templates myself and learning what each part means because this is consistently messing me up. I also decided to put the namespace in the manifest files as well. I didn't know what I was able to do that but it makes the apply commands a little shorter. 
+
+I'm going to deploy these using the deployment files first and then the service files. Then we'll see if we get the Iron Gallery installation page. Well that worked! Green check. 
 
 ## Day 62: Manage Secrets in Kubernetes
 
