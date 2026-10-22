@@ -28,7 +28,9 @@ We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end o
 
 ## Day 64: Fix Python App Deployed on Kubernetes Cluster
 
+This lab is all about troubleshooting. You already know the gameplan. Lets see as many logs as we can find. Everything looks good on the deployment side (well mostly everything). After running `kubectl get pods`, I'm seeing there's an issue with the image. The image is `poroko/flash-app-demo`. It can't find this image. I don't even know if this is a real image or what the actual image should be. After rereading the prompt, it's supposed to be using `poroko/flash-dem-app` so we need to swap the wording. We'll fix that using `kubectl edit deployment`. Lets focus on the service though. It's supposed to be using nodePort 32345 and the targetPort should be the python flask app's default port. I'm assuming this is TCP 5000 based on the pod saying `Port: 5000/TCP`. Okay I used `kubectl edit svc` to change the targetPort to 5000. After I checked both edits for a running status, I pressed the app button on KodeKloud and I received a message saying `Hello World Pyvo 1!`
 
+I GOT THE GREEN CHECK. Heck yeah!
 
 ## Day 63: Deploy Iron Gallery App on Kubernetes
 
