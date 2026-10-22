@@ -24,7 +24,78 @@ We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end o
 
 ## Day 65: Deploy Redis Deployment on Kubernetes
 
+Lets get this deployment underway! So I'm going to rely on my previous deployment templates to get this started. We also need to create a ConfigMap so this will be the first time for that. 
 
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: redis
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: redis
+
+  template:
+    metadata:
+      labels:
+        app: redis
+
+    spec:
+      containers:
+        - name: redis-container
+          image: redis:alpine
+          ports: 
+            - containterPort: 6379
+          resources:
+            requests:
+              cpu: "1"
+          volumeMounts:
+            - name: data
+              mountPath: /redis-master-data
+
+            - name: redis-config
+              mountPath: /redis-master
+            
+      volumes:
+        - name: data
+          emptyDir: {}
+
+        - name: redis-config
+          configMap:
+            name: my-redis-config
+            items:
+              - key: redis-config
+                path: redis.conf 
+
+```
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-redis-config
+
+data:
+  redis-config: |
+    maxmemory 2mb
+    maxmemory-policy allkeys-lru
+```
+
+UPDATE: Okay I did the best I could. I've never worked with a ConfigMap and the K8s documentation wasn't clear. Going to lean on AI to see what I need to fix. I had to make some changes to the volumes: section regarding the ConfigMap section. I still don't understand what it's doing but I'll ask for an explanation later. Apparently, we need to deploy the ConfigMap first and then the deployment. Lets do that. Got the green check mark. Lets go over what we did regarding the ConfigMap part. 
+
+AI explanations:
+- ConfigMap - a K8s API object that stores non-sensitve (so no Secrets) configuration separately from your container image. It stores configuration key-value pairs and the Pods can consume these are environment variables.
+- ConfigMap manifests use the `data:` section. The key is redis-config. The values are maxmemory 2mb and maxmemroy-policy allkeys-lru.
+- volume: name: redis-config is just the volume's internal name.
+- The configMap part connects the Pod to this ConfigMap object.
+- The items: section says retrieve the key called redis-config (remember, that key has two values) and expose that key as a file named redis.conf. So basically it's just placing those values into that file.
+- Create the ConfigMap first before the deployment.
+- Manifest - a file containing the declarative definition of one or more K8s resources. Remember, deployments, pods, services, configmaps, secrets, etc are all K8s OBJECTS. The manifests are the files that describe the objects so we call everything a manifest. 
 
 ## Day 64: Fix Python App Deployed on Kubernetes Cluster
 
