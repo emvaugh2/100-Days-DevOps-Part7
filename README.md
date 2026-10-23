@@ -20,6 +20,156 @@ We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end o
 
 ## Day 66: Deploy MySQL on Kubernetes
 
+We needed to deploy a MySQL instance using different Kubernetes manifests. We needed to included environment variables in our deployment file while also creating a Secrets manifest to store the values of the environment variable keys. We also need a persistent volume and volume claim to store at data from the container. Lastly, we need to create a Service manifest to expose port 30002 while still serving ports 3306. 
+
+My biggest learning lesson here was supplying the Secrets values to the deployment. I've never done that before and didn't know what it was supposed to look like so I leaned on AI for this. I used my manifests from my previous labs to piece this deployment together. I also didn't know the ports for MySQL. I thought it was 1433 but it was 3306. Everything else I got correct though so that's also a confidence booster. 
+
+Green check. Lets go. 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    app: mysql
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: mysql
+
+  template:
+    metadata:
+      labels:
+        app: mysql
+
+    spec:
+      containers:
+        - name: mysql-container
+          image: mysql:latest
+
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-root-pass
+                  key: password
+
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-db-url
+                  key: database
+
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-user-pass
+                  key: username
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-user-pass
+                  key: password
+
+          ports:
+            - containerPort: 3306
+
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
+
+```
+
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+
+spec:
+  type: NodePort
+
+  selector:
+    app: mysql
+
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+      nodePort: 30007
+```
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-root-pass
+type: Opaque
+stringData:
+  password: "YUIidhb667"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-user-pass
+type: Opaque
+stringData:
+  username: "kodekloud_gem"
+  password: "LQfKeWWxWD"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-db-url
+type: Opaque
+stringData:
+  database: "kodekloud_db2"
+
+
+```
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+
+spec:
+  storageClassName: manual
+
+  accessModes:
+    - ReadWriteOnce
+
+  resources:
+    requests:
+      storage: 250Mi
+```
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 250Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/var/lib/mysql"
+```
+
 
 
 ## Day 65: Deploy Redis Deployment on Kubernetes
