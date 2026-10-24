@@ -16,7 +16,189 @@ We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end o
 
 ## Day 67: Deploy Guest Book App on Kubernetes
 
+THIS IS OUR FINAL K8s LAB! We learned a lot, didn't we? Lets finish it up. I pretty much got this all the way by myself. The labeling was a little off and I had an indentation error but outside of those things, I was good to go. I did ask AI what order I should deploy all of these in so I left them in the right order for future use. 
 
+NICE. GREEN CHECK. You're a K8s expert at this point. 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-master
+  labels:
+    app: redis-master
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: redis-master
+
+  template:
+    metadata:
+      labels:
+        app: redis-master
+
+    spec:
+      containers:
+        - name: master-redis-datacenter
+          image: redis
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+          ports:
+            containerPort: 6379
+
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-master
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: redis-master
+
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-slave
+  labels:
+    app: redis-slave
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: redis-slave
+
+  template:
+    metadata:
+      labels:
+        app: redis-slave
+
+    spec:
+      containers:
+        - name: slave-redis-datacenter
+          image: gcr.io/google_samples/gb-redisslave:v3
+          env:
+            - name: GET_HOSTS_FROM
+              value: "dns"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+          ports:
+            containerPort: 6379
+
+
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-slave
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: redis-slave
+
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-follower
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: redis-slave
+
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: frontend
+
+  template:
+    metadata:
+      labels:
+        app: frontend
+
+    spec:
+      containers:
+        - name: php-redis-datacenter
+          image: gcr.io/google-samples/gb-frontend@sha256:a908df8486ff66f2c4daa0d3d8a2fa09846a1fc8efd65649c0109695c7c5cbff
+          env:
+            - name: GET_HOSTS_FROM
+              value: "dns"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+          ports:
+            containerPort: 80
+
+
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+
+spec:
+  type: NodePort
+
+  selector:
+    app: frontend
+
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30009
+```
 
 ## Day 66: Deploy MySQL on Kubernetes
 
