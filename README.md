@@ -14,6 +14,8 @@ We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end o
 
 Just in case I run out of time today. Just need to keep my streak. 
 
+We'll knock out a few of these tomorrow. Or Monday. 
+
 ## Day 67: Deploy Guest Book App on Kubernetes
 
 THIS IS OUR FINAL K8s LAB! We learned a lot, didn't we? Lets finish it up. I pretty much got this all the way by myself. The labeling was a little off and I had an indentation error but outside of those things, I was good to go. I did ask AI what order I should deploy all of these in so I left them in the right order for future use. 
