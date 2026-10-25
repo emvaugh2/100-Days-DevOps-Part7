@@ -12,7 +12,7 @@ We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end o
 
 ## Day 68: Set Up Jenkins Server
 
-
+Just in case I run out of time today. Just need to keep my streak. 
 
 ## Day 67: Deploy Guest Book App on Kubernetes
 
