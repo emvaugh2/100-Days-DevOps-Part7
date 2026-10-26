@@ -4,21 +4,19 @@ We're now in the 60s! This is still mostly Kubernetes (K8s) labs but we'll end o
 
 ## Day 70: Configure Jenkins User Access
 
+We're basically configuring a user to have specific access to the Jenkins server. I was very lost at first because I didn't know we needed a plugin called Matrix Authorization Strategy to configure all of this. One I installed this plugin, you can go into Manage Jenkins > Security and switch the Authorization section to use Matrix Authorization Strategy. Here, I was able to add users to this section and enforce why access they had. I had to give the `Kareem` user ro-access and the `admin` full access. After that, there was one Hello World job where I had to navigate to Configure and find the section where I authorized who could do what to this job. I had to also give the `Kareem` user ro-access. 
 
+This was completely new to me. I had to click around on every single option just to find where to put these configurations. I didn't need AI For this so that was a plus. Green check. 
 
 ## Day 69: Install Jenkins Plugins
 
-
+We needed to install Git and GitLab on the Jenkins server. You can do this by going into the WebUI, click the gear icon, navigate to Plugins, and then search for the plugins in Available Plugins. When you search for the two packages, you'll find them. Then just hit install. This is really easy. I had the Jenkins server restart after the plugins were installed so they'll be ready for use when I logged back in. 
 
 ## Day 68: Set Up Jenkins Server
 
-Just in case I run out of time today. Just need to keep my streak. 
+This actually took a lot longer than I expected. I'm used to starting up Jenkins in containers, not downloading the package and dependencies to start the service. I was confused at first because I was on the jumpbox host and the instructions didn't give the information for the Jenkins server. My intuition said to do `ssh root@jenkins` which worked with the provided password. Once I was on the Jenkins server, it was a very lean Linux machine (uses apt instead of dnf and not too many tools). I downloaded the jenkins package but apparently this needs Java to run. I found an article on Stack Overflow that showed me how to install Jenkins which required Java. I ran the `openjdk-8-jre` install but I found out that version wasn't high enough. Then I ran Java 11 which Jenkins also didn't like this. I finally ran Java 21 or something which allowed me to start the Jenkins service using `service jenkins start`. I'm used to using systemctl so that was new as well. After that, the Jenkins WebUI loaded and I created the admin credentials as instructed. 
 
-We'll knock out a few of these tomorrow. Or Monday. 
-
-Alright fareal next time. 
-
-Knocking out 5 of these today. 
+Easy enough. Green check. 
 
 ## Day 67: Deploy Guest Book App on Kubernetes
 
